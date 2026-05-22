@@ -18,9 +18,6 @@ import {
   ArrowRightLeft,
   XCircle,
   Tag,
-  Wallet,
-  Eye,
-  EyeOff,
 } from "lucide-react"
 import {
   Dialog,
@@ -87,7 +84,7 @@ interface UserProfileModalProps {
   onPassengersChange: (p: FrequentPassenger[]) => void
 }
 
-type Tab = "datos" | "pasajeros" | "pagos" | "viajes" | "monedero"
+type Tab = "datos" | "pasajeros" | "pagos" | "viajes"
 
 /* ------------------------------------------------------------------ */
 /* Tab button                                                          */
@@ -867,155 +864,6 @@ function TabViajes({ trips }: { trips: UserTrip[] }) {
 }
 
 /* ================================================================== */
-/* Tab: Monedero Electronico                                           */
-/* ================================================================== */
-
-function TabMonedero() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
-  const [linked, setLinked] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
-
-  const handleLogin = () => {
-    if (!email.trim() || !password.trim()) {
-      setError("Por favor completa todos los campos.")
-      return
-    }
-    setError("")
-    setLoading(true)
-    // Simulate async login
-    setTimeout(() => {
-      setLoading(false)
-      setLinked(true)
-    }, 1200)
-  }
-
-  if (linked) {
-    return (
-      <div className="space-y-4">
-        <h3 className="text-sm font-semibold text-foreground">
-          Monedero Electronico
-        </h3>
-        <div className="flex flex-col items-center gap-4 rounded-xl border bg-card py-10 text-center">
-          <div className="flex size-16 items-center justify-center rounded-full bg-success/10">
-            <Wallet className="size-8 text-success" />
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-foreground">
-              Cuenta vinculada
-            </p>
-            <p className="mt-1 text-xs text-muted-foreground">{email}</p>
-          </div>
-          <div className="rounded-lg border bg-secondary/30 px-6 py-4 text-center">
-            <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
-              Saldo disponible
-            </p>
-            <p className="mt-1 text-2xl font-bold text-foreground">$ 0.00</p>
-          </div>
-          <button
-            onClick={() => {
-              setLinked(false)
-              setEmail("")
-              setPassword("")
-            }}
-            className="text-xs text-muted-foreground underline-offset-2 hover:underline"
-          >
-            Desvincular cuenta
-          </button>
-        </div>
-      </div>
-    )
-  }
-
-  return (
-    <div className="space-y-5">
-      <div>
-        <h3 className="text-sm font-semibold text-foreground">
-          Monedero Electronico
-        </h3>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Vincula tu cuenta de Monedero Electronico para pagar tus boletos con saldo acumulado.
-        </p>
-      </div>
-
-      <div className="space-y-3">
-        {/* Email */}
-        <div>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => { setEmail(e.target.value); setError("") }}
-            placeholder="Correo electronico"
-            className="w-full rounded-lg border border-input bg-secondary/30 px-4 py-3 text-sm text-foreground outline-none ring-ring placeholder:text-muted-foreground focus:bg-background focus:ring-1"
-          />
-        </div>
-
-        {/* Password */}
-        <div className="relative">
-          <input
-            type={showPassword ? "text" : "password"}
-            value={password}
-            onChange={(e) => { setPassword(e.target.value); setError("") }}
-            placeholder="Contrasena"
-            className="w-full rounded-lg border border-input bg-secondary/30 px-4 py-3 pr-11 text-sm text-foreground outline-none ring-ring placeholder:text-muted-foreground focus:bg-background focus:ring-1"
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword((v) => !v)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-            aria-label={showPassword ? "Ocultar contrasena" : "Mostrar contrasena"}
-          >
-            {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-          </button>
-        </div>
-
-        {/* Error */}
-        {error && (
-          <p className="text-xs text-destructive">{error}</p>
-        )}
-
-        {/* Forgot password */}
-        <div className="text-right">
-          <button className="text-xs text-foreground underline underline-offset-2 hover:opacity-70">
-            &iquest;Olvidaste tu contrasena?
-          </button>
-        </div>
-      </div>
-
-      {/* CTA */}
-      <button
-        onClick={handleLogin}
-        disabled={loading}
-        className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-3.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60"
-      >
-        {loading ? (
-          <div className="size-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
-        ) : (
-          "Iniciar sesion"
-        )}
-      </button>
-
-      {/* Divider */}
-      <div className="flex items-center gap-3">
-        <div className="h-px flex-1 bg-border" />
-        <span className="text-xs text-muted-foreground">O</span>
-        <div className="h-px flex-1 bg-border" />
-      </div>
-
-      {/* Register */}
-      <p className="text-center text-xs text-muted-foreground">
-        &iquest;No tienes cuenta?{" "}
-        <button className="font-medium text-foreground underline underline-offset-2 hover:opacity-70">
-          Registrate
-        </button>
-      </p>
-    </div>
-  )
-}
-
-/* ================================================================== */
 /* Main Modal                                                          */
 /* ================================================================== */
 
@@ -1070,12 +918,6 @@ export function UserProfileModal({
             label="Mis viajes"
             onClick={() => setActiveTab("viajes")}
           />
-          <TabButton
-            active={activeTab === "monedero"}
-            icon={Wallet}
-            label="Monedero"
-            onClick={() => setActiveTab("monedero")}
-          />
         </div>
 
         {/* Content */}
@@ -1093,7 +935,6 @@ export function UserProfileModal({
             <TabPagos cards={cards} onCardsChange={onCardsChange} />
           )}
           {activeTab === "viajes" && <TabViajes trips={trips} />}
-          {activeTab === "monedero" && <TabMonedero />}
         </div>
       </DialogContent>
     </Dialog>
