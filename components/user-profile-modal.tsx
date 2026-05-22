@@ -21,6 +21,7 @@ import {
   Wallet,
   Eye,
   EyeOff,
+  Gift,
 } from "lucide-react"
 import {
   Dialog,
@@ -87,7 +88,7 @@ interface UserProfileModalProps {
   onPassengersChange: (p: FrequentPassenger[]) => void
 }
 
-type Tab = "datos" | "pasajeros" | "pagos" | "viajes" | "monedero"
+type Tab = "datos" | "pasajeros" | "pagos" | "viajes" | "monedero" | "doters"
 
 /* ------------------------------------------------------------------ */
 /* Tab button                                                          */
@@ -731,6 +732,257 @@ function TabPagos({
 }
 
 /* ================================================================== */
+/* Tab: Doters – programa de lealtad                                  */
+/* ================================================================== */
+
+/* Doters green dot + wordmark */
+function DotersLogo({ className }: { className?: string }) {
+  return (
+    <div className={cn("flex items-center gap-1", className)}>
+      <svg viewBox="0 0 18 18" fill="none" className="size-5 shrink-0" aria-hidden="true">
+        <circle cx="9" cy="9" r="9" fill="#3CC13B" />
+        <circle cx="9" cy="9" r="4" fill="white" />
+      </svg>
+      <span className="text-base font-bold tracking-tight text-foreground">doters</span>
+    </div>
+  )
+}
+
+type DotersState = "login" | "linked"
+
+function TabDoters() {
+  const [state, setState] = useState<DotersState>("login")
+  const [step, setStep] = useState<"email" | "password">("email")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
+  const [rememberMe, setRememberMe] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [linkedName] = useState("Ryland G.")
+  const [points] = useState(3_240)
+  const [tier] = useState("Silver")
+
+  const handleEmailNext = () => {
+    if (!email.trim()) return
+    setStep("password")
+  }
+
+  const handleLogin = () => {
+    if (!password.trim()) return
+    setIsLoading(true)
+    setTimeout(() => {
+      setIsLoading(false)
+      setState("linked")
+    }, 1200)
+  }
+
+  const handleUnlink = () => {
+    setState("login")
+    setStep("email")
+    setEmail("")
+    setPassword("")
+  }
+
+  /* ── Linked state ── */
+  if (state === "linked") {
+    return (
+      <div className="space-y-5">
+        <div className="flex items-center justify-between">
+          <DotersLogo />
+          <button
+            onClick={handleUnlink}
+            className="text-xs text-muted-foreground transition-colors hover:text-destructive"
+          >
+            Desvincular
+          </button>
+        </div>
+
+        {/* Points card */}
+        <div className="relative overflow-hidden rounded-xl bg-[#1a2e1a] px-5 py-5 text-white">
+          {/* decorative circles */}
+          <div className="pointer-events-none absolute -right-6 -top-6 size-24 rounded-full bg-[#3CC13B]/20" />
+          <div className="pointer-events-none absolute -bottom-4 right-8 size-16 rounded-full bg-[#3CC13B]/10" />
+
+          <div className="flex items-center gap-2 opacity-80">
+            <svg viewBox="0 0 18 18" fill="none" className="size-4 shrink-0">
+              <circle cx="9" cy="9" r="9" fill="#3CC13B" />
+              <circle cx="9" cy="9" r="4" fill="white" />
+            </svg>
+            <span className="text-xs font-medium uppercase tracking-wide">doters</span>
+          </div>
+          <p className="mt-3 text-3xl font-bold tracking-tight">
+            {points.toLocaleString()} <span className="text-lg font-normal opacity-70">pts</span>
+          </p>
+          <div className="mt-1 flex items-center gap-2">
+            <span className="rounded-full bg-[#3CC13B]/30 px-2 py-0.5 text-[10px] font-semibold text-[#3CC13B]">
+              {tier}
+            </span>
+            <span className="text-xs opacity-60">{email || "cuenta vinculada"}</span>
+          </div>
+        </div>
+
+        {/* Info rows */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between rounded-lg border bg-card px-4 py-3">
+            <span className="text-sm text-muted-foreground">Estado</span>
+            <span className="flex items-center gap-1.5 text-sm font-medium text-success">
+              <span className="inline-block size-1.5 rounded-full bg-success" />
+              Vinculado
+            </span>
+          </div>
+          <div className="flex items-center justify-between rounded-lg border bg-card px-4 py-3">
+            <span className="text-sm text-muted-foreground">Nivel</span>
+            <span className="text-sm font-semibold text-foreground">{tier}</span>
+          </div>
+          <div className="flex items-center justify-between rounded-lg border bg-card px-4 py-3">
+            <span className="text-sm text-muted-foreground">Puntos acumulados</span>
+            <span className="text-sm font-semibold text-foreground">
+              {points.toLocaleString()} pts
+            </span>
+          </div>
+        </div>
+
+        <p className="text-[11px] leading-relaxed text-muted-foreground">
+          Acumula puntos en cada viaje y canjealos por descuentos en tus proximas compras.
+        </p>
+      </div>
+    )
+  }
+
+  /* ── Login state ── */
+  return (
+    <div className="flex flex-col">
+      {/* Branded header */}
+      <div className="mb-6 flex flex-col items-center gap-1 text-center">
+        <DotersLogo className="mb-2 scale-125" />
+        <h3 className="mt-1 text-xl font-bold text-foreground">Bienvenido</h3>
+        <p className="text-sm text-muted-foreground">
+          {step === "email"
+            ? "Inicia sesion para continuar"
+            : <>¡Hola! <span className="font-semibold text-[#3CC13B]">{email.split("@")[0]}</span></>}
+        </p>
+      </div>
+
+      <div className="space-y-4">
+        {step === "email" ? (
+          /* Email step */
+          <>
+            <div>
+              <p className="mb-1.5 text-[10px] uppercase tracking-wide text-muted-foreground">
+                Correo electronico
+              </p>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleEmailNext()}
+                placeholder="tu@correo.com"
+                className="w-full rounded-xl border border-input bg-secondary/40 px-4 py-3 text-sm text-foreground outline-none ring-ring transition-colors placeholder:text-muted-foreground/50 focus:bg-background focus:ring-1"
+              />
+            </div>
+            <button
+              onClick={handleEmailNext}
+              disabled={!email.trim()}
+              className="flex w-full items-center justify-center rounded-xl bg-[#1a2e1a] py-3.5 text-sm font-bold text-white transition-all hover:bg-[#1a2e1a]/90 active:scale-[0.98] disabled:opacity-40"
+            >
+              Continuar
+            </button>
+            <div className="flex items-center gap-3">
+              <div className="h-px flex-1 bg-border" />
+              <span className="text-xs text-muted-foreground">O</span>
+              <div className="h-px flex-1 bg-border" />
+            </div>
+            <p className="text-center text-xs text-muted-foreground">
+              ¿No tienes cuenta?{" "}
+              <button className="font-medium text-[#3CC13B] underline underline-offset-2 transition-colors hover:text-[#3CC13B]/80">
+                Crear cuenta
+              </button>
+            </p>
+          </>
+        ) : (
+          /* Password step */
+          <>
+            {/* Password field */}
+            <div>
+              <p className="mb-1.5 text-[10px] uppercase tracking-wide text-muted-foreground">
+                Contrasena
+              </p>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+                  placeholder="Ingresa tu contrasena"
+                  className="w-full rounded-xl border border-input bg-secondary/40 py-3 pl-4 pr-11 text-sm text-foreground outline-none ring-ring transition-colors placeholder:text-muted-foreground/50 focus:bg-background focus:ring-1"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
+                  aria-label={showPassword ? "Ocultar contrasena" : "Mostrar contrasena"}
+                >
+                  {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                </button>
+              </div>
+            </div>
+
+            {/* Remember me + forgot */}
+            <div className="flex items-center justify-between">
+              <label className="flex cursor-pointer items-center gap-2 text-xs text-muted-foreground">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="size-3.5 rounded border-input accent-[#3CC13B]"
+                />
+                Recuerdame
+              </label>
+              <button className="text-xs font-medium text-[#3CC13B] underline underline-offset-2 transition-colors hover:text-[#3CC13B]/80">
+                Olvide mi contrasena
+              </button>
+            </div>
+
+            {/* CTA */}
+            <button
+              onClick={handleLogin}
+              disabled={isLoading || !password.trim()}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#1a2e1a] py-3.5 text-sm font-bold text-white transition-all hover:bg-[#1a2e1a]/90 active:scale-[0.98] disabled:opacity-40"
+            >
+              {isLoading ? (
+                <div className="size-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              ) : (
+                "Iniciar sesion"
+              )}
+            </button>
+
+            {/* Footer links */}
+            <div className="flex items-center justify-between">
+              <button
+                onClick={() => { setStep("email"); setPassword("") }}
+                className="text-xs font-medium text-[#3CC13B] underline underline-offset-2 transition-colors hover:text-[#3CC13B]/80"
+              >
+                Iniciar con otra cuenta
+              </button>
+              <button className="flex items-center gap-1 text-xs font-medium text-[#3CC13B] underline underline-offset-2 transition-colors hover:text-[#3CC13B]/80">
+                Crear cuenta
+                <ChevronRight className="size-3" />
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Powered by doters footer */}
+      <div className="mt-8 flex items-center justify-center gap-2 rounded-xl bg-secondary/50 py-3">
+        <span className="text-xs text-muted-foreground">Powered by</span>
+        <DotersLogo />
+      </div>
+    </div>
+  )
+}
+
+/* ================================================================== */
 /* Tab: Monedero Electronico                                          */
 /* ================================================================== */
 
@@ -1101,6 +1353,12 @@ export function UserProfileModal({
             label="Monedero"
             onClick={() => setActiveTab("monedero")}
           />
+          <TabButton
+            active={activeTab === "doters"}
+            icon={Gift}
+            label="Doters"
+            onClick={() => setActiveTab("doters")}
+          />
         </div>
 
         {/* Content */}
@@ -1119,6 +1377,7 @@ export function UserProfileModal({
           )}
           {activeTab === "viajes" && <TabViajes trips={trips} />}
           {activeTab === "monedero" && <TabMonedero />}
+          {activeTab === "doters" && <TabDoters />}
         </div>
       </DialogContent>
     </Dialog>
