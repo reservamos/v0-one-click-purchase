@@ -758,9 +758,18 @@ function TabDoters() {
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [linkedName] = useState("Ryland G.")
-  const [points] = useState(3_240)
-  const [tier] = useState("Silver")
+  const [linkedName] = useState("Ryland Grace")
+  const [memberNumber] = useState("5570003021")
+  const [points] = useState(50_838)
+  const [tier] = useState("Verde")
+
+  const menuItems = [
+    "Mi perfil",
+    "El programa",
+    "Acumula y utiliza",
+    "Niveles y beneficios",
+    "Preguntas frecuentes",
+  ]
 
   const handleEmailNext = () => {
     if (!email.trim()) return
@@ -786,65 +795,61 @@ function TabDoters() {
   /* ── Linked state ── */
   if (state === "linked") {
     return (
-      <div className="space-y-5">
-        <div className="flex items-center justify-between">
+      <div className="-mx-1 flex flex-col">
+        {/* Teal top bar with doters logo */}
+        <div className="flex items-center justify-between rounded-t-xl bg-[#1a4a4a] px-4 py-3">
           <DotersLogo />
-          <button
-            onClick={handleUnlink}
-            className="text-xs text-muted-foreground transition-colors hover:text-destructive"
-          >
-            Desvincular
-          </button>
         </div>
 
-        {/* Points card */}
-        <div className="relative overflow-hidden rounded-xl bg-[#1a2e1a] px-5 py-5 text-white">
-          {/* decorative circles */}
-          <div className="pointer-events-none absolute -right-6 -top-6 size-24 rounded-full bg-[#3CC13B]/20" />
-          <div className="pointer-events-none absolute -bottom-4 right-8 size-16 rounded-full bg-[#3CC13B]/10" />
+        {/* Green tier banner */}
+        <div className="bg-[#3CC13B] px-4 py-2 text-center">
+          <p className="text-sm font-semibold text-white">
+            Eres nivel: <span className="font-bold">Verde</span>
+          </p>
+        </div>
 
-          <div className="flex items-center gap-2 opacity-80">
-            <svg viewBox="0 0 18 18" fill="none" className="size-4 shrink-0">
+        {/* User info */}
+        <div className="bg-background px-4 py-5 text-center">
+          <p className="text-lg font-bold text-foreground">{linkedName}</p>
+          <p className="mt-0.5 text-sm text-muted-foreground">
+            N° de socio: {memberNumber}
+          </p>
+          <div className="mt-4 flex items-center justify-center gap-2">
+            <p className="text-xl font-bold text-foreground">
+              Puntos Doters: {points.toLocaleString()}
+            </p>
+            <svg viewBox="0 0 18 18" fill="none" className="size-5 shrink-0" aria-hidden="true">
               <circle cx="9" cy="9" r="9" fill="#3CC13B" />
               <circle cx="9" cy="9" r="4" fill="white" />
             </svg>
-            <span className="text-xs font-medium uppercase tracking-wide">doters</span>
-          </div>
-          <p className="mt-3 text-3xl font-bold tracking-tight">
-            {points.toLocaleString()} <span className="text-lg font-normal opacity-70">pts</span>
-          </p>
-          <div className="mt-1 flex items-center gap-2">
-            <span className="rounded-full bg-[#3CC13B]/30 px-2 py-0.5 text-[10px] font-semibold text-[#3CC13B]">
-              {tier}
-            </span>
-            <span className="text-xs opacity-60">{email || "cuenta vinculada"}</span>
           </div>
         </div>
 
-        {/* Info rows */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between rounded-lg border bg-card px-4 py-3">
-            <span className="text-sm text-muted-foreground">Estado</span>
-            <span className="flex items-center gap-1.5 text-sm font-medium text-success">
-              <span className="inline-block size-1.5 rounded-full bg-success" />
-              Vinculado
-            </span>
-          </div>
-          <div className="flex items-center justify-between rounded-lg border bg-card px-4 py-3">
-            <span className="text-sm text-muted-foreground">Nivel</span>
-            <span className="text-sm font-semibold text-foreground">{tier}</span>
-          </div>
-          <div className="flex items-center justify-between rounded-lg border bg-card px-4 py-3">
-            <span className="text-sm text-muted-foreground">Puntos acumulados</span>
-            <span className="text-sm font-semibold text-foreground">
-              {points.toLocaleString()} pts
-            </span>
-          </div>
+        <div className="h-px bg-border" />
+
+        {/* Menu list */}
+        <div className="flex flex-col bg-background">
+          {menuItems.map((item, i) => (
+            <div key={item}>
+              <button className="flex w-full items-center px-4 py-4 text-sm text-foreground transition-colors hover:bg-secondary/50">
+                {item}
+              </button>
+              {i < menuItems.length - 1 && <div className="mx-4 h-px bg-border" />}
+            </div>
+          ))}
         </div>
 
-        <p className="text-[11px] leading-relaxed text-muted-foreground">
-          Acumula puntos en cada viaje y canjealos por descuentos en tus proximas compras.
-        </p>
+        <div className="h-px bg-border" />
+
+        {/* Cerrar sesion */}
+        <div className="bg-background px-4 py-4">
+          <button
+            onClick={handleUnlink}
+            className="w-full rounded-full border border-foreground/20 py-3.5 text-sm font-semibold text-foreground transition-colors hover:bg-secondary/50"
+          >
+            Cerrar sesion
+          </button>
+        </div>
       </div>
     )
   }
