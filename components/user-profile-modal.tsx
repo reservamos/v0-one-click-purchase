@@ -18,6 +18,9 @@ import {
   ArrowRightLeft,
   XCircle,
   Tag,
+  Wallet,
+  Eye,
+  EyeOff,
 } from "lucide-react"
 import {
   Dialog,
@@ -84,7 +87,7 @@ interface UserProfileModalProps {
   onPassengersChange: (p: FrequentPassenger[]) => void
 }
 
-type Tab = "datos" | "pasajeros" | "pagos" | "viajes"
+type Tab = "datos" | "pasajeros" | "pagos" | "viajes" | "monedero"
 
 /* ------------------------------------------------------------------ */
 /* Tab button                                                          */
@@ -728,6 +731,180 @@ function TabPagos({
 }
 
 /* ================================================================== */
+/* Tab: Monedero Electronico                                          */
+/* ================================================================== */
+
+type MonederoState = "login" | "linked"
+
+function TabMonedero() {
+  const [state, setState] = useState<MonederoState>("login")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [linkedEmail, setLinkedEmail] = useState("")
+  const [balance] = useState(120.5)
+
+  const handleLogin = () => {
+    if (!email.trim() || !password.trim()) return
+    setIsLoading(true)
+    // Simulate async login
+    setTimeout(() => {
+      setIsLoading(false)
+      setLinkedEmail(email.trim())
+      setState("linked")
+    }, 1200)
+  }
+
+  const handleUnlink = () => {
+    setState("login")
+    setEmail("")
+    setPassword("")
+    setLinkedEmail("")
+  }
+
+  if (state === "linked") {
+    return (
+      <div className="space-y-5">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-foreground">
+            Monedero Electronico
+          </h3>
+          <button
+            onClick={handleUnlink}
+            className="text-xs text-muted-foreground transition-colors hover:text-destructive"
+          >
+            Desvincular
+          </button>
+        </div>
+
+        {/* Balance card */}
+        <div className="rounded-xl bg-primary px-5 py-5 text-primary-foreground">
+          <div className="flex items-center gap-2 opacity-80">
+            <Wallet className="size-4" />
+            <span className="text-xs font-medium uppercase tracking-wide">
+              Saldo disponible
+            </span>
+          </div>
+          <p className="mt-2 text-3xl font-bold tracking-tight">
+            S/ {balance.toFixed(2)}
+          </p>
+          <p className="mt-1 text-xs opacity-70 truncate">{linkedEmail}</p>
+        </div>
+
+        {/* Info rows */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between rounded-lg border bg-card px-4 py-3">
+            <span className="text-sm text-muted-foreground">Estado</span>
+            <span className="flex items-center gap-1.5 text-sm font-medium text-success">
+              <span className="size-1.5 rounded-full bg-success inline-block" />
+              Vinculado
+            </span>
+          </div>
+          <div className="flex items-center justify-between rounded-lg border bg-card px-4 py-3">
+            <span className="text-sm text-muted-foreground">Cuenta</span>
+            <span className="text-sm font-medium text-foreground truncate max-w-[180px]">
+              {linkedEmail}
+            </span>
+          </div>
+        </div>
+
+        <p className="text-[11px] leading-relaxed text-muted-foreground">
+          Tu saldo del monedero se aplicara automaticamente como metodo de pago en tu proxima compra.
+        </p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-5">
+      <div>
+        <h3 className="text-sm font-semibold text-foreground">
+          Monedero Electronico
+        </h3>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Ingresa a tu cuenta para ver tu saldo y usarlo como metodo de pago.
+        </p>
+      </div>
+
+      {/* Email */}
+      <div>
+        <p className="mb-1.5 text-[10px] uppercase tracking-wide text-muted-foreground">
+          Correo electronico
+        </p>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="tu@correo.com"
+          className="w-full rounded-lg border border-input bg-secondary/40 px-4 py-3 text-sm text-foreground outline-none ring-ring transition-colors placeholder:text-muted-foreground/50 focus:bg-background focus:ring-1"
+        />
+      </div>
+
+      {/* Password */}
+      <div>
+        <p className="mb-1.5 text-[10px] uppercase tracking-wide text-muted-foreground">
+          Contrasena
+        </p>
+        <div className="relative">
+          <input
+            type={showPassword ? "text" : "password"}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+            placeholder="••••••••"
+            className="w-full rounded-lg border border-input bg-secondary/40 py-3 pl-4 pr-11 text-sm text-foreground outline-none ring-ring transition-colors placeholder:text-muted-foreground/50 focus:bg-background focus:ring-1"
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
+            aria-label={showPassword ? "Ocultar contrasena" : "Mostrar contrasena"}
+          >
+            {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+          </button>
+        </div>
+      </div>
+
+      {/* Forgot password */}
+      <div className="text-right">
+        <button className="text-xs text-muted-foreground underline underline-offset-2 transition-colors hover:text-foreground">
+          ¿Olvidaste tu contrasena?
+        </button>
+      </div>
+
+      {/* CTA */}
+      <button
+        onClick={handleLogin}
+        disabled={isLoading || !email.trim() || !password.trim()}
+        className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-sm font-bold text-primary-foreground transition-all hover:bg-primary/90 active:scale-[0.98] disabled:opacity-50"
+      >
+        {isLoading ? (
+          <div className="size-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
+        ) : (
+          "Iniciar sesion"
+        )}
+      </button>
+
+      {/* Divider */}
+      <div className="flex items-center gap-3">
+        <div className="h-px flex-1 bg-border" />
+        <span className="text-xs text-muted-foreground">O</span>
+        <div className="h-px flex-1 bg-border" />
+      </div>
+
+      {/* Register */}
+      <p className="text-center text-xs text-muted-foreground">
+        ¿No tienes cuenta?{" "}
+        <button className="font-medium text-primary underline underline-offset-2 transition-colors hover:text-primary/80">
+          Registrate
+        </button>
+      </p>
+    </div>
+  )
+}
+
+/* ================================================================== */
 /* Tab: Mis Viajes                                                     */
 /* ================================================================== */
 
@@ -918,6 +1095,12 @@ export function UserProfileModal({
             label="Mis viajes"
             onClick={() => setActiveTab("viajes")}
           />
+          <TabButton
+            active={activeTab === "monedero"}
+            icon={Wallet}
+            label="Monedero"
+            onClick={() => setActiveTab("monedero")}
+          />
         </div>
 
         {/* Content */}
@@ -935,6 +1118,7 @@ export function UserProfileModal({
             <TabPagos cards={cards} onCardsChange={onCardsChange} />
           )}
           {activeTab === "viajes" && <TabViajes trips={trips} />}
+          {activeTab === "monedero" && <TabMonedero />}
         </div>
       </DialogContent>
     </Dialog>
