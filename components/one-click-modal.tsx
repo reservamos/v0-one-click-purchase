@@ -11,7 +11,6 @@ import {
   ChevronUp,
   Pencil,
   Armchair,
-  Lock,
 } from "lucide-react"
 import {
   Dialog,
@@ -36,15 +35,6 @@ export interface PaymentData {
   brand: string
   last4: string
   expiry: string
-  type?: "card" | "paypal"
-  paypalEmail?: string
-}
-
-export interface GuestCardData {
-  cardNumber: string
-  cardHolder: string
-  expiry: string
-  cvv: string
 }
 
 interface OneClickModalProps {
@@ -57,32 +47,6 @@ interface OneClickModalProps {
   onPassengerChange?: (p: PassengerData) => void
   onPaymentChange?: (p: PaymentData) => void
   selectedSeats?: number[]
-  isLoggedIn?: boolean
-  onChangeSeat?: () => void
-}
-
-/* ------------------------------------------------------------------ */
-/* PayPal icon (simplified brand SVG)                                  */
-/* ------------------------------------------------------------------ */
-function PayPalIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-label="PayPal"
-    >
-      <path
-        d="M19.5 7.5C19.5 10.538 17.21 13 14 13H11.5L10.5 18H7.5L9.5 6H15C17.485 6 19.5 6.672 19.5 7.5Z"
-        fill="#009cde"
-      />
-      <path
-        d="M17 4.5C17 7.538 14.71 10 11.5 10H9L8 15H5L7 3H12.5C14.985 3 17 3.672 17 4.5Z"
-        fill="#003087"
-      />
-    </svg>
-  )
 }
 
 /* ------------------------------------------------------------------ */
@@ -134,8 +98,6 @@ export function OneClickModal({
   onPassengerChange,
   onPaymentChange,
   selectedSeats = [],
-  isLoggedIn = true,
-  onChangeSeat,
 }: OneClickModalProps) {
   const [insuranceEnabled, setInsuranceEnabled] = useState(true)
   const [showPaymentDetails, setShowPaymentDetails] = useState(false)
@@ -148,33 +110,16 @@ export function OneClickModal({
   // Inline‑editable payment state
   const [editingPayment, setEditingPayment] = useState(false)
   const [localPayment, setLocalPayment] = useState<PaymentData>(payment)
-  const [paymentTab, setPaymentTab] = useState<"card" | "paypal">(
-    payment.type === "paypal" ? "paypal" : "card"
-  )
-  const [paypalEmail, setPaypalEmail] = useState(payment.paypalEmail ?? "")
-
-  // Guest card data
-  const [guestCard, setGuestCard] = useState<GuestCardData>({
-    cardNumber: "",
-    cardHolder: "",
-    expiry: "",
-    cvv: "",
-  })
 
   // Keep in sync with props when modal opens
   useEffect(() => {
     if (open) {
       setLocalPassenger(passenger)
       setLocalPayment(payment)
-      setPaymentTab(payment.type === "paypal" ? "paypal" : "card")
-      setPaypalEmail(payment.paypalEmail ?? "")
-      setEditingPassenger(!isLoggedIn) // guests start in edit mode
+      setEditingPassenger(false)
       setEditingPayment(false)
-      if (!isLoggedIn) {
-        setGuestCard({ cardNumber: "", cardHolder: "", expiry: "", cvv: "" })
-      }
     }
-  }, [open, passenger, payment, isLoggedIn])
+  }, [open, passenger, payment])
 
   if (!trip) return null
 
@@ -196,12 +141,7 @@ export function OneClickModal({
   /* Save payment inline */
   const handleSavePayment = () => {
     setEditingPayment(false)
-    const saved: PaymentData =
-      paymentTab === "paypal"
-        ? { ...localPayment, type: "paypal", paypalEmail }
-        : { ...localPayment, type: "card" }
-    setLocalPayment(saved)
-    onPaymentChange?.(saved)
+    onPaymentChange?.(localPayment)
   }
 
   const handleConfirm = async () => {
@@ -231,7 +171,7 @@ export function OneClickModal({
         <DialogHeader className="flex flex-row items-center gap-2 border-b px-5 py-4">
           <Zap className="size-5 text-accent" />
           <DialogTitle className="text-base font-bold">
-            {isLoggedIn ? "Compra en 1 Clic" : "Compra rapida"}
+            Compra en 1 Clic
           </DialogTitle>
         </DialogHeader>
 
@@ -280,14 +220,7 @@ export function OneClickModal({
             </div>
 
             {/* Seat display */}
-            <button
-              type="button"
-              onClick={onChangeSeat}
-              className={cn(
-                "mt-3 flex w-full items-center gap-1.5 rounded-md bg-card px-3 py-2 text-sm transition-colors",
-                onChangeSeat && "hover:bg-secondary/60 cursor-pointer"
-              )}
-            >
+            <div className="mt-3 flex items-center gap-1.5 rounded-md bg-card px-3 py-2 text-sm">
               <Armchair className="size-4 text-primary" />
               <span className="text-muted-foreground">
                 {selectedSeats.length > 1 ? "Asientos" : "Asiento"}
@@ -300,13 +233,7 @@ export function OneClickModal({
                   Tu favorito
                 </span>
               )}
-              {onChangeSeat && (
-                <span className="ml-auto flex items-center gap-1 text-[10px] font-medium text-accent">
-                  <Pencil className="size-3" />
-                  Cambiar
-                </span>
-              )}
-            </button>
+            </div>
           </div>
 
           <Separator className="my-4" />
@@ -317,25 +244,23 @@ export function OneClickModal({
               <h3 className="text-sm font-semibold text-foreground">
                 Datos del pasajero
               </h3>
-              {isLoggedIn ? (
-                editingPassenger ? (
-                  <button
-                    onClick={handleSavePassenger}
-                    className="flex items-center gap-1 rounded-md bg-success/10 px-2 py-0.5 text-xs font-medium text-success transition-colors hover:bg-success/20"
-                  >
-                    <Check className="size-3" />
-                    Listo
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => setEditingPassenger(true)}
-                    className="flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
-                  >
-                    <Pencil className="size-3" />
-                    Editar
-                  </button>
-                )
-              ) : null}
+              {editingPassenger ? (
+                <button
+                  onClick={handleSavePassenger}
+                  className="flex items-center gap-1 rounded-md bg-success/10 px-2 py-0.5 text-xs font-medium text-success transition-colors hover:bg-success/20"
+                >
+                  <Check className="size-3" />
+                  Listo
+                </button>
+              ) : (
+                <button
+                  onClick={() => setEditingPassenger(true)}
+                  className="flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  <Pencil className="size-3" />
+                  Editar
+                </button>
+              )}
             </div>
 
             <div
@@ -387,229 +312,73 @@ export function OneClickModal({
               <h3 className="text-sm font-semibold text-foreground">
                 Metodo de pago
               </h3>
-              {isLoggedIn ? (
-                editingPayment ? (
-                  <button
-                    onClick={handleSavePayment}
-                    className="flex items-center gap-1 rounded-md bg-success/10 px-2 py-0.5 text-xs font-medium text-success transition-colors hover:bg-success/20"
-                  >
-                    <Check className="size-3" />
-                    Listo
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => setEditingPayment(true)}
-                    className="flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
-                  >
-                    <Pencil className="size-3" />
-                    Editar
-                  </button>
-                )
-              ) : null}
+              {editingPayment ? (
+                <button
+                  onClick={handleSavePayment}
+                  className="flex items-center gap-1 rounded-md bg-success/10 px-2 py-0.5 text-xs font-medium text-success transition-colors hover:bg-success/20"
+                >
+                  <Check className="size-3" />
+                  Listo
+                </button>
+              ) : (
+                <button
+                  onClick={() => setEditingPayment(true)}
+                  className="flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  <Pencil className="size-3" />
+                  Editar
+                </button>
+              )}
             </div>
 
-            {isLoggedIn ? (
-              <div
-                className={cn(
-                  "rounded-lg border bg-card transition-all",
-                  editingPayment && "ring-1 ring-primary/30"
-                )}
-              >
-                {editingPayment ? (
-                  <div>
-                    {/* Payment type tabs */}
-                    <div className="flex border-b">
-                      <button
-                        type="button"
-                        onClick={() => setPaymentTab("card")}
-                        className={cn(
-                          "flex flex-1 items-center justify-center gap-2 px-4 py-2.5 text-xs font-medium transition-colors",
-                          paymentTab === "card"
-                            ? "border-b-2 border-primary text-foreground"
-                            : "text-muted-foreground hover:text-foreground"
-                        )}
-                      >
-                        <CreditCard className="size-3.5" />
-                        Tarjeta
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setPaymentTab("paypal")}
-                        className={cn(
-                          "flex flex-1 items-center justify-center gap-2 px-4 py-2.5 text-xs font-medium transition-colors",
-                          paymentTab === "paypal"
-                            ? "border-b-2 border-[#003087] text-[#003087]"
-                            : "text-muted-foreground hover:text-foreground"
-                        )}
-                      >
-                        <PayPalIcon className="size-3.5" />
-                        PayPal
-                      </button>
-                    </div>
-
-                    <div className="space-y-3 p-3">
-                      {paymentTab === "card" ? (
-                        <>
-                          <div className="grid grid-cols-2 gap-3">
-                            <InlineField
-                              label="Marca"
-                              value={localPayment.brand}
-                              onChange={(v) => updatePaymentField("brand", v)}
-                              editing
-                              placeholder="Visa, Mastercard..."
-                            />
-                            <InlineField
-                              label="Ultimos 4 digitos"
-                              value={localPayment.last4}
-                              onChange={(v) => updatePaymentField("last4", v)}
-                              editing
-                              placeholder="0000"
-                            />
-                          </div>
-                          <InlineField
-                            label="Vencimiento"
-                            value={localPayment.expiry}
-                            onChange={(v) => updatePaymentField("expiry", v)}
-                            editing
-                            placeholder="MM/AA"
-                          />
-                        </>
-                      ) : (
-                        <div>
-                          <p className="mb-1 text-[10px] uppercase text-muted-foreground">
-                            Correo de PayPal
-                          </p>
-                          <div className="relative">
-                            <input
-                              type="email"
-                              value={paypalEmail}
-                              onChange={(e) => setPaypalEmail(e.target.value)}
-                              placeholder="tu@email.com"
-                              className="w-full rounded-md border border-input bg-background py-2 pl-3 pr-10 text-sm text-foreground outline-none ring-ring placeholder:text-muted-foreground/50 focus:ring-1"
-                            />
-                            <PayPalIcon className="absolute right-3 top-1/2 size-4 -translate-y-1/2 text-[#003087]" />
-                          </div>
-                          <p className="mt-2 flex items-center gap-1.5 text-[10px] text-muted-foreground">
-                            <Lock className="size-3 shrink-0" />
-                            Seras redirigido a PayPal para autorizar el pago de forma segura.
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-3 p-3">
-                    {localPayment.type === "paypal" ? (
-                      <>
-                        <div className="flex size-10 items-center justify-center rounded-md bg-[#003087] text-white">
-                          <PayPalIcon className="size-5" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-foreground">PayPal</p>
-                          <p className="text-xs text-muted-foreground">
-                            {localPayment.paypalEmail ?? "Cuenta vinculada"}
-                          </p>
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <div className="flex size-10 items-center justify-center rounded-md bg-primary text-primary-foreground">
-                          <CreditCard className="size-5" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-foreground">
-                            {localPayment.brand} terminada en {localPayment.last4}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            Vence {localPayment.expiry}
-                          </p>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                )}
-              </div>
-            ) : (
-              /* Guest card form */
-              <div className="space-y-3 rounded-lg border bg-card p-3">
-                {/* Card number */}
-                <div>
-                  <p className="mb-1 text-[10px] uppercase text-muted-foreground">Numero de tarjeta</p>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      maxLength={19}
-                      value={guestCard.cardNumber}
-                      onChange={(e) => {
-                        const raw = e.target.value.replace(/\D/g, "").slice(0, 16)
-                        const formatted = raw.replace(/(.{4})/g, "$1 ").trim()
-                        setGuestCard((prev) => ({ ...prev, cardNumber: formatted }))
-                      }}
-                      placeholder="0000 0000 0000 0000"
-                      className="w-full rounded-md border border-input bg-background py-2 pl-3 pr-10 text-sm font-medium tracking-wider text-foreground outline-none ring-ring placeholder:text-muted-foreground/50 focus:ring-1"
+            <div
+              className={cn(
+                "rounded-lg border bg-card p-3 transition-all",
+                editingPayment && "ring-1 ring-primary/30"
+              )}
+            >
+              {editingPayment ? (
+                <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <InlineField
+                      label="Marca"
+                      value={localPayment.brand}
+                      onChange={(v) => updatePaymentField("brand", v)}
+                      editing
+                      placeholder="Visa, Mastercard..."
                     />
-                    <CreditCard className="absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                    <InlineField
+                      label="Ultimos 4 digitos"
+                      value={localPayment.last4}
+                      onChange={(v) => updatePaymentField("last4", v)}
+                      editing
+                      placeholder="0000"
+                    />
                   </div>
-                </div>
-
-                {/* Cardholder */}
-                <div>
-                  <p className="mb-1 text-[10px] uppercase text-muted-foreground">Nombre en la tarjeta</p>
-                  <input
-                    type="text"
-                    value={guestCard.cardHolder}
-                    onChange={(e) => setGuestCard((prev) => ({ ...prev, cardHolder: e.target.value.toUpperCase() }))}
-                    placeholder="NOMBRE APELLIDO"
-                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-medium uppercase tracking-wide text-foreground outline-none ring-ring placeholder:normal-case placeholder:text-muted-foreground/50 focus:ring-1"
+                  <InlineField
+                    label="Vencimiento"
+                    value={localPayment.expiry}
+                    onChange={(v) => updatePaymentField("expiry", v)}
+                    editing
+                    placeholder="MM/AA"
                   />
                 </div>
-
-                {/* Expiry + CVV */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <p className="mb-1 text-[10px] uppercase text-muted-foreground">Vencimiento</p>
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      maxLength={5}
-                      value={guestCard.expiry}
-                      onChange={(e) => {
-                        const raw = e.target.value.replace(/\D/g, "").slice(0, 4)
-                        const formatted = raw.length > 2 ? `${raw.slice(0, 2)}/${raw.slice(2)}` : raw
-                        setGuestCard((prev) => ({ ...prev, expiry: formatted }))
-                      }}
-                      placeholder="MM/AA"
-                      className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-medium tracking-wider text-foreground outline-none ring-ring placeholder:text-muted-foreground/50 focus:ring-1"
-                    />
+              ) : (
+                <div className="flex items-center gap-3">
+                  <div className="flex size-10 items-center justify-center rounded-md bg-primary text-primary-foreground">
+                    <CreditCard className="size-5" />
                   </div>
                   <div>
-                    <p className="mb-1 text-[10px] uppercase text-muted-foreground">CVV</p>
-                    <div className="relative">
-                      <input
-                        type="password"
-                        inputMode="numeric"
-                        maxLength={4}
-                        value={guestCard.cvv}
-                        onChange={(e) => {
-                          const raw = e.target.value.replace(/\D/g, "").slice(0, 4)
-                          setGuestCard((prev) => ({ ...prev, cvv: raw }))
-                        }}
-                        placeholder="***"
-                        className="w-full rounded-md border border-input bg-background py-2 pl-3 pr-8 text-sm font-medium text-foreground outline-none ring-ring placeholder:text-muted-foreground/50 focus:ring-1"
-                      />
-                      <Lock className="absolute right-3 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
-                    </div>
+                    <p className="text-sm font-medium text-foreground">
+                      {localPayment.brand} terminada en {localPayment.last4}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Vence {localPayment.expiry}
+                    </p>
                   </div>
                 </div>
-
-                {/* Security note */}
-                <p className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-                  <Lock className="size-3 shrink-0" />
-                  Tus datos estan protegidos con cifrado SSL de 256 bits.
-                </p>
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
           <Separator className="my-4" />
@@ -696,18 +465,15 @@ export function OneClickModal({
               <div className="size-5 animate-spin rounded-full border-2 border-accent-foreground border-t-transparent" />
             ) : (
               <>
-                {isLoggedIn ? <Zap className="size-5" /> : <CreditCard className="size-5" />}
-                {isLoggedIn ? "Confirmar compra" : "Pagar"} - $ {totalPrice.toLocaleString()}
+                <Zap className="size-5" />
+                Confirmar compra - $ {totalPrice.toLocaleString()}
               </>
             )}
           </button>
 
           {/* Footer note */}
           <p className="mt-3 text-center text-[10px] leading-relaxed text-muted-foreground">
-            {isLoggedIn
-              ? "Silla asignada automaticamente. "
-              : ""}
-            Al confirmar aceptas los{" "}
+            Silla asignada automaticamente. Al confirmar aceptas los{" "}
             <a href="#" className="underline hover:text-foreground">
               terminos y condiciones
             </a>

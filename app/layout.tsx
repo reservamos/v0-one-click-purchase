@@ -7,8 +7,8 @@ const _inter = Inter({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'Cruz del Sur - Compra en 1 Clic',
-  description: 'Compra tus pasajes Cruz del Sur en un solo clic con datos prellenados y pago guardado.',
+  title: 'Autobuses Mexico - Compra en 1 Clic',
+  description: 'Compra tus boletos de viaje en un solo clic con datos prellenados y pago guardado.',
   generator: 'v0.app',
   icons: {
     icon: [

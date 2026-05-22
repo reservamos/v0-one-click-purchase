@@ -28,16 +28,16 @@ interface SearchEditModalProps {
 }
 
 const CITIES = [
-  "Lima, Peru",
-  "Ica, Peru",
-  "Arequipa, Peru",
-  "Cusco, Peru",
-  "Trujillo, Peru",
-  "Piura, Peru",
-  "Chiclayo, Peru",
-  "Huancayo, Peru",
-  "Tacna, Peru",
-  "Puno, Peru",
+  "Mexico Norte, CDMX",
+  "Aeropuerto Internacional, CDMX",
+  "Guadalajara",
+  "Monterrey",
+  "Queretaro",
+  "Puebla",
+  "San Luis Potosi",
+  "Morelia",
+  "Aguascalientes",
+  "Leon",
 ]
 
 export function SearchEditModal({

@@ -61,17 +61,17 @@ function generateTripsForDate(dateKey: string): TripData[] {
   ]
 
   const arrivalOffsets: Record<string, string> = {
-    "02:00 AM": "06:00 AM",
-    "05:30 AM": "09:30 AM",
-    "06:20 AM": "10:20 AM",
-    "08:00 AM": "12:00 PM",
-    "10:00 AM": "02:00 PM",
-    "12:30 PM": "04:30 PM",
-    "02:00 PM": "06:00 PM",
-    "04:30 PM": "08:30 PM",
-    "06:00 PM": "10:00 PM",
-    "08:00 PM": "12:00 AM",
-    "10:30 PM": "02:30 AM",
+    "02:00 AM": "09:30 AM",
+    "05:30 AM": "01:00 PM",
+    "06:20 AM": "01:50 PM",
+    "08:00 AM": "03:30 PM",
+    "10:00 AM": "05:30 PM",
+    "12:30 PM": "08:00 PM",
+    "02:00 PM": "09:30 PM",
+    "04:30 PM": "12:00 AM",
+    "06:00 PM": "01:30 AM",
+    "08:00 PM": "03:30 AM",
+    "10:30 PM": "06:00 AM",
   }
 
   // Seed based on dateKey for consistency across renders
@@ -104,12 +104,12 @@ function generateTripsForDate(dateKey: string): TripData[] {
       id: `${dateKey}-${i}`,
       departureTime: dep.time,
       arrivalTime: arrivalOffsets[dep.time] || "07:00 PM",
-      duration: "4h 00m",
+      duration: "7h 30m",
       serviceType: service,
-      origin: "Lima",
-      destination: "Ica",
+      origin: "Mexico Norte",
+      destination: "Aeropuerto Int.",
       price,
-      currency: "PEN",
+      currency: "MXN",
       date: dateFull,
       seatsAvailable: availableSeats,
       preselectedSeat: isOneClick ? String(seatNums[i % seatNums.length]) : null,
@@ -136,12 +136,12 @@ function generateTripsForDate(dateKey: string): TripData[] {
       id: `${dateKey}-sold-${i}`,
       departureTime: dep.time,
       arrivalTime: arrivalOffsets[dep.time] || "07:00 PM",
-      duration: "4h 00m",
+      duration: "7h 30m",
       serviceType: service,
-      origin: "Lima",
-      destination: "Ica",
+      origin: "Mexico Norte",
+      destination: "Aeropuerto Int.",
       price,
-      currency: "PEN",
+      currency: "MXN",
       date: dateFull,
       seatsAvailable: 0,
       preselectedSeat: null,
@@ -202,7 +202,7 @@ export default function Page() {
     name: "Ryland Grace",
     document: "CC 1.045.XXX.XXX",
     email: "ryland@email.com",
-    phone: "+51 999 XXX XXX",
+    phone: "+52 555 XXX XXXX",
   })
 
   const [payment, setPayment] = useState<PaymentData>({
@@ -210,9 +210,6 @@ export default function Page() {
     last4: "4582",
     expiry: "08/28",
   })
-
-  // ── Auth state (toggle for demo) ──
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
 
   // ── User profile modal state ──
   const [showProfile, setShowProfile] = useState(false)
@@ -222,7 +219,7 @@ export default function Page() {
     name: "Ryland Grace",
     document: "INE 1045XXXXXX",
     email: "ryland@email.com",
-    phone: "+51 999 XXX XXX",
+    phone: "+52 555 XXX XXXX",
     category: "Adulto",
   })
 
@@ -232,61 +229,61 @@ export default function Page() {
   ])
 
   const [frequentPassengers, setFrequentPassengers] = useState<FrequentPassenger[]>([
-    { id: "fp-1", name: "Sarah", lastName: "Grace", category: "Adulto", phone: "+51 999 123 456" },
+    { id: "fp-1", name: "Sarah", lastName: "Grace", category: "Adulto", phone: "+52 555 123 4567" },
     { id: "fp-2", name: "Rocky", lastName: "Grace", category: "Menor" },
   ])
 
   const [userTrips] = useState<UserTrip[]>([
     {
       id: "ut-1",
-      origin: "Lima",
-      destination: "Ica",
+      origin: "Mexico Norte",
+      destination: "Aeropuerto Int.",
       date: "18 Feb 2026",
       departureTime: "06:20 AM",
-      arrivalTime: "10:20 AM",
+      arrivalTime: "01:50 PM",
       serviceType: "PLUS",
       seat: "15",
-      price: 45,
-      currency: "PEN",
+      price: 380,
+      currency: "MXN",
       status: "proximo",
     },
     {
       id: "ut-2",
-      origin: "Lima",
-      destination: "Ica",
+      origin: "Mexico Norte",
+      destination: "Aeropuerto Int.",
       date: "25 Feb 2026",
       departureTime: "10:00 AM",
-      arrivalTime: "02:00 PM",
+      arrivalTime: "05:30 PM",
       serviceType: "EJECUTIVO",
       seat: "22",
-      price: 65,
-      currency: "PEN",
+      price: 420,
+      currency: "MXN",
       status: "proximo",
     },
     {
       id: "ut-3",
-      origin: "Ica",
-      destination: "Lima",
+      origin: "Aeropuerto Int.",
+      destination: "Mexico Norte",
       date: "02 Feb 2026",
       departureTime: "08:00 AM",
-      arrivalTime: "12:00 PM",
+      arrivalTime: "03:30 PM",
       serviceType: "PLUS",
       seat: "8",
-      price: 45,
-      currency: "PEN",
+      price: 350,
+      currency: "MXN",
       status: "pasado",
     },
     {
       id: "ut-4",
-      origin: "Lima",
-      destination: "Ica",
+      origin: "Mexico Norte",
+      destination: "Aeropuerto Int.",
       date: "20 Ene 2026",
       departureTime: "02:00 PM",
-      arrivalTime: "06:00 PM",
+      arrivalTime: "09:30 PM",
       serviceType: "PRIMERA",
       seat: "3",
-      price: 95,
-      currency: "PEN",
+      price: 680,
+      currency: "MXN",
       status: "pasado",
     },
   ])
@@ -299,8 +296,8 @@ export default function Page() {
   // ── Search edit modal state ──
   const [showSearchEdit, setShowSearchEdit] = useState(false)
   const [searchParams, setSearchParams] = useState<SearchParams>({
-    origin: "Lima, Peru",
-    destination: "Ica, Peru",
+    origin: "Mexico Norte, CDMX",
+    destination: "Aeropuerto Internacional, CDMX",
     date: "2026-02-13",
     passengers: 1,
     tripType: "ida",
@@ -428,12 +425,7 @@ export default function Page() {
 
   return (
     <div className="min-h-screen bg-background">
-      <SiteHeader
-        onOpenProfile={handleOpenProfile}
-        isLoggedIn={isLoggedIn}
-        onLogin={() => setIsLoggedIn(true)}
-        onLogout={() => setIsLoggedIn(false)}
-      />
+      <SiteHeader onOpenProfile={handleOpenProfile} />
       <RouteHeader
         origin={searchParams.origin.split(",")[0]}
         destination={searchParams.destination.split(",")[0]}
@@ -473,12 +465,12 @@ export default function Page() {
               </div>
               <div className="flex-1">
                 <h3 className="text-sm font-bold text-foreground">
-                  {isLoggedIn ? "Compra en 1 Clic disponible" : "Compra rapida disponible"}
+                  Compra en 1 Clic disponible
                 </h3>
                 <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
-                  {isLoggedIn
-                    ? `Detectamos tu asiento favorito y datos guardados. Puedes comprar ${oneClickTrips.length} viaje${oneClickTrips.length > 1 ? "s" : ""} sin pasos adicionales.`
-                    : `Completa tus datos y paga en segundos. ${oneClickTrips.length} viaje${oneClickTrips.length > 1 ? "s" : ""} disponible${oneClickTrips.length > 1 ? "s" : ""}.`}
+                  Detectamos tu asiento favorito y datos guardados. Puedes comprar{" "}
+                  {oneClickTrips.length} viaje{oneClickTrips.length > 1 ? "s" : ""} sin
+                  pasos adicionales.
                 </p>
               </div>
               <button className="shrink-0 text-muted-foreground hover:text-foreground">
@@ -578,11 +570,6 @@ export default function Page() {
         onPassengerChange={setPassenger}
         onPaymentChange={setPayment}
         selectedSeats={selectedTrip ? selectedSeats[selectedTrip.id] || [] : []}
-        isLoggedIn={isLoggedIn}
-        onChangeSeat={() => {
-          setShowOneClick(false)
-          setTimeout(() => setShowSeatSelector(true), 200)
-        }}
       />
 
       {/* Success Modal */}
